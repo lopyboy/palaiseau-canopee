@@ -1,10 +1,10 @@
 <template>
   <div class="p-4 bg-white rounded-lg shadow-md text-black">
-    <h3 class="text-lg font-semibold mb-4">GeoTIFF Layers</h3>
+    <h3 class="text-lg font-semibold mb-4">Couches de données</h3>
     
     <div v-if="loading" class="flex items-center justify-center py-4">
       <UIcon name="i-lucide-refresh-cw" class="animate-spin h-5 w-5 mr-2" />
-      <span>Loading GeoTIFF files...</span>
+      <span>Chargement en cours...</span>
     </div>
     
     <div v-else class="space-y-3">
