@@ -10,6 +10,8 @@
           <div class="h-[calc(100vh-200px)]">
             <MapView 
               :layers="activeLayers" 
+              :is-satellite="isSatellite"
+
               ref="mapViewRef"
             />
           </div>
@@ -21,6 +23,7 @@
 
 <script setup>
 import { ref, reactive } from 'vue';
+defineProps({ isSatellite: Boolean })
 
 // Define reactive state
 const mapViewRef = ref(null);

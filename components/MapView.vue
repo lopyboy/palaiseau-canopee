@@ -15,6 +15,10 @@ const props = defineProps({
   layers: {
     type: Object,
     default: () => ({})
+  },
+  isSatellite: {
+    type: Boolean,
+    default: false
   }
 });
 
@@ -25,6 +29,35 @@ const geoRasterLayers = ref({});
 const L = ref(null); // Store Leaflet library reference
 const GeoRasterLayer = ref(null); // Store GeoRasterLayer constructor
 const initialBoundsFit = ref(false); // Track if initial bounds fit is done
+
+const baseLayer = ref(null);
+
+// Function to set the base layer (OSM or Satellite)
+const setBaseLayer = () => {
+  if (!map.value || !L.value) return;
+  // Remove previous base layer if exists
+  if (baseLayer.value) {
+    map.value.removeLayer(baseLayer.value);
+    baseLayer.value = null;
+  }
+  // Add the correct base layer
+  if (props.isSatellite) {
+    baseLayer.value = L.value.tileLayer(
+      'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+      {
+        attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+      }
+    );
+  } else {
+    baseLayer.value = L.value.tileLayer(
+      'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+      {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      }
+    );
+  }
+  baseLayer.value.addTo(map.value);
+};
 
 // Function to initialize the map
 const initMap = async () => {
@@ -46,12 +79,10 @@ const initMap = async () => {
     
     // Initialize map
     map.value = L.value.map('map').setView([48.7157, 2.2512], 13); // Palaiseau coordinates
-    
-    // Add OpenStreetMap tile layer
-    L.value.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(map.value);
-    
+
+    // Add the correct base layer
+    setBaseLayer();
+
     loading.value = false;
   } catch (error) {
     console.error('Error initializing map:', error);
@@ -201,6 +232,11 @@ watch(() => props.layers, (newLayers) => {
     }
   }
 }, { deep: true });
+
+// Watch for base layer switch
+watch(() => props.isSatellite, () => {
+  setBaseLayer();
+});
 
 // Expose methods to parent components
 defineExpose({
